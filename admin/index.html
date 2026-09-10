@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>红点创芯｜内容管理后台</title>
+  <link rel="stylesheet" href="admin.css?v=6">
+  <link rel="stylesheet" href="visibility-fix.css?v=1">
+  <link rel="stylesheet" href="cms.css?v=3">
+  <link rel="stylesheet" href="rich-image.css?v=1">
+  <link rel="stylesheet" href="logo.css?v=1">
+  <link rel="stylesheet" href="hero-media-settings.css?v=1">
+  <link rel="stylesheet" href="home-about-media-settings.css?v=1">
+  <link rel="stylesheet" href="distribution-description.css?v=1">
+  <link rel="stylesheet" href="save-notification.css?v=1">
+</head>
+<body>
+  <main id="login" class="login"><section><img class="admin-logo" src="../assets/reddot-logo-transparent.png" alt="红点创芯"><h1>红点创芯内容管理</h1><form id="loginForm" novalidate><label class="login-field"><input type="text" id="username" autocomplete="username" placeholder="账号"><button type="button" class="input-clear" data-clear="username" aria-label="清空账号"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></label><label class="login-field password-field"><input type="password" id="password" autocomplete="current-password" placeholder="密码"><button type="button" class="input-clear" data-clear="password" aria-label="清空密码"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button><button type="button" class="password-toggle" aria-label="显示密码" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-5.5 9.5-5.5S21.5 12 21.5 12 18.1 17.5 12 17.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.7"/></svg></button></label><button id="loginSubmit" type="submit">登录后台</button></form><small id="loginError" role="alert" aria-live="polite"></small></section></main>
+  <main id="dashboard" hidden><aside><div class="logo"><img class="admin-logo" src="../assets/reddot-logo-transparent.png" alt="红点创芯">红点创芯</div><p>内容管理后台</p><nav id="sideNav"><button data-tab="settings" class="active">全局与首页</button><button data-tab="distribution">集团分布地图</button><button data-tab="solutions">解决方案</button><button data-tab="brands">代理品牌</button><button data-tab="news">新闻资讯</button><button data-tab="platforms">集团业务平台</button></nav><a href="../index.html">查看官网 ↗</a></aside><section class="admin-main"><header><div><p>CONTENT MANAGEMENT</p><h1 id="pageTitle">全局与首页</h1></div><button id="reset" class="secondary">恢复默认演示数据</button></header><div class="notice">数据保存在当前服务器的 <code>data/site.json</code>，保存后前台刷新即可看到变化。</div><section id="editor"></section></section></main>
+  <script src="admin.js?v=13"></script>
+  <script src="rich-image.js?v=2"></script>
+  <script src="hero-media-settings.js?v=2"></script>
+  <script src="home-about-media-settings.js?v=3"></script>
+  <script src="distribution-description.js?v=1"></script>
+</body>
+</html>

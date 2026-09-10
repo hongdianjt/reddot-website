@@ -1,0 +1,14 @@
+/* 首页第六屏：与“关于我们 / 集团分布”同步的地图组件 */
+.home-distribution{background:#fafafa;padding:72px 0!important;overflow:hidden}
+.home-distribution .container{width:min(1360px,calc(100% - 64px))}
+.home-distribution-layout{display:grid;grid-template-columns:1.7fr .9fr;min-height:610px;background:#fff;border:1px solid #ececef;border-radius:10px;overflow:hidden}
+.home-map-pane{position:relative;min-height:610px;background:radial-gradient(circle at 65% 64%,#ffecee,transparent 27%),#fcfcfc;overflow:hidden}
+#homeChinaMap{width:100%;height:610px}
+.home-map-popover{position:absolute;z-index:3;left:24px;bottom:24px;min-width:250px;max-width:340px;max-height:210px;overflow:auto;background:#fff;border:1px solid #eee;border-radius:8px;padding:18px;box-shadow:0 16px 36px #1112;pointer-events:none}
+.home-map-popover h3{margin:0 0 12px;font-size:16px}.home-map-popover ul{margin:0;padding-left:18px;color:#555;line-height:1.9;font-size:13px}
+.home-city-panel{padding:24px;border-left:1px solid #eee;background:#fff}
+.home-city-search{display:flex;align-items:center;border:1px solid #e2e3e6;border-radius:18px;padding:0 12px}.home-city-search input{flex:1;min-width:0;border:0;padding:12px 4px;outline:0;background:transparent}.home-city-search span{margin-left:auto;display:grid;place-items:center;width:24px;color:#727780;font-size:17px}
+.home-filters{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0}.home-filters button{border:0;border-radius:18px;box-shadow:none;background:#f1f2f4;color:#555;padding:8px 11px;font-size:12px;transition:background .2s ease,color .2s ease}.home-filters button.active{background:#e50012;color:#fff}
+.home-city-list{display:grid;gap:11px;max-height:420px;overflow:auto;padding-right:2px}.home-city-card{width:100%;border:1px solid #eee;border-radius:10px;background:#fff;text-align:left;padding:15px;transition:border-color .2s ease,box-shadow .2s ease}.home-city-card:hover{border-color:#f4a0a7}.home-city-card.active{border-color:#e50012;box-shadow:0 6px 16px #e5001215}.home-city-card header{display:flex;justify-content:space-between;align-items:center;font-weight:700}.home-city-card header b{color:#e50012;background:#fff1f2;border-radius:12px;padding:2px 8px;font-size:12px}.home-city-card p{color:#6c7077;font-size:12px;line-height:1.8;margin:8px 0 0}.home-city-count{font-size:12px;text-align:center;color:#777;margin:16px 0 0}
+#group #starMap[hidden]{display:none!important}
+@media(max-width:800px){.home-distribution{padding:56px 0!important}.home-distribution .container{width:min(1360px,calc(100% - 48px))}.home-distribution-layout{grid-template-columns:1fr}.home-map-pane,#homeChinaMap{min-height:430px;height:430px}.home-map-popover{left:14px;right:14px;bottom:14px;max-width:none}.home-city-panel{border-left:0;border-top:1px solid #eee}}

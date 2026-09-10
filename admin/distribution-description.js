@@ -1,0 +1,6 @@
+(()=>{
+  const addField=()=>{const form=document.querySelector('#companyForm');if(!form||form.querySelector('[name="description"]'))return;const comment=form.querySelector('[name="comment"]')?.closest('label');if(!comment)return;comment.insertAdjacentHTML('beforebegin','<label class="full">企业描述<textarea name="description" placeholder="用于官网集团业务平台的企业信息展示"></textarea></label>');};
+  const fillDescription=async()=>{const form=document.querySelector('#companyForm'),field=form?.querySelector('[name="description"]'),name=form?.querySelector('[name="name"]')?.value;if(!field||field.dataset.ready||!name)return;field.dataset.ready='true';try{const response=await fetch('/api/admin/site',{headers:{'x-admin-token':sessionStorage.getItem('reddot-admin-token')}}),site=await response.json(),company=site.distribution.flatMap(city=>city.companies||[]).find(item=>(item.name||item[0])===name);field.value=company?.description||''}catch(error){console.warn(error)}};
+  document.addEventListener('click',event=>{if(event.target.closest('[data-company-edit]'))setTimeout(()=>{addField();fillDescription()},0);if(event.target.closest('#addCompany'))setTimeout(addField,0)});
+  new MutationObserver(()=>{addField();fillDescription()}).observe(document.body,{childList:true,subtree:true});
+})();

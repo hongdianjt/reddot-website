@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>关于我们｜红点创芯</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="about.css">
+</head>
+<body class="about-page">
+  <header class="site-header page-header">
+    <a class="brand" href="index.html"><span class="brand-mark">RD</span><span>红点创芯</span></a>
+    <button class="menu-toggle" aria-label="打开导航" aria-expanded="false">☰</button>
+    <nav aria-label="主导航"><a href="index.html">网站首页</a><a class="active" href="about.html">关于我们</a><a href="brands.html">代理品牌</a><a href="solutions.html">解决方案</a><a href="news.html">新闻资讯</a><a href="contact.html">联系我们</a></nav>
+    <span class="lang">中文⌄</span>
+  </header>
+  <main>
+    <section class="about-hero page-hero" id="aboutHero"><div class="container"><p class="eyebrow">ABOUT RED DOT</p><h1 id="bannerTitle"></h1><p id="bannerSub"></p></div></section>
+    <section class="section profile"><div class="container profile-grid"><article><p class="eyebrow red">COMPANY PROFILE</p><h2 id="introTitle"></h2><p class="profile-lead">红点创芯连接国产芯片能力与整车量产需求，以选型、方案、软件、验证及供应协同的全链路服务，帮助客户稳步推进项目落地。</p><div id="introText" class="profile-text"></div></article><figure id="aboutMedia" class="about-media"></figure></div></section>
+    <section class="culture enterprise-mission about-mission">
+      <div class="container culture-layout">
+        <div class="culture-copy"><div class="mission-list">
+          <article class="mission-item"><i aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3"/></svg></i><div><b>企业使命</b><p>助力客户用中国芯做世界级好车。</p></div></article>
+          <article class="mission-item"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 18 9 8l4 5 3-4 5 9H3Z"/><path d="M5 20h14M15 5l1-2 1 2 2 1-2 1-1 2-1-2-2-1 2-1Z"/></svg></i><div><b>企业愿景</b><p>成为中国领先的汽车芯片国产化解决方案平台。</p></div></article>
+          <article class="mission-item"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 7 5-7 13L5 8l7-5Z"/><path d="m5 8 7 5 7-5M12 13v8"/></svg></i><div><b>企业价值观</b><p>为科技赋能，为创新赋能，为产业赋能。</p></div></article>
+          <article class="mission-item"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h5l2 2 3-3 6 1v5l-5 3-4-2-3 2-4-2v-6Z"/><path d="m8 18 3-3m3-4 2 3"/></svg></i><div><b>企业服务</b><p>提供国产车规芯片选型、应用方案设计、软件适配、测试验证及供应链协同服务。</p></div></article>
+          <article class="mission-item mission-advantage"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m6 11 6 3 6-3M6 15l6 3 6-3"/></svg></i><div><b>服务优势</b><p>依托选型、方案、软件、验证与供应协同能力，为客户提供贯穿需求评估、项目导入到稳定量产的连续支持，降低技术与交付风险。</p></div></article>
+        </div></div>
+        <div class="culture-visual" aria-label="驾驶舱与汽车芯片应用场景"></div>
+      </div>
+    </section>
+    <section class="section distribution"><div class="container"><div class="section-head"><div><p class="eyebrow red">GROUP DISTRIBUTION</p><h2>集团分布</h2><p>以前端销售、软件平台与方案平台协同，服务汽车芯片国产化项目。</p></div></div><div class="distribution-layout"><div class="map-pane"><div id="chinaMap" aria-label="中国地图"></div><aside id="mapPopover" class="map-popover" hidden></aside></div><aside class="city-panel"><label class="city-search"><input id="citySearch" placeholder="搜索城市或公司"><span>⌕</span></label><div class="filters" id="filters"><button data-filter="all" class="active">全部</button><button data-filter="前端销售">前端销售</button><button data-filter="软件平台">软件平台</button><button data-filter="方案平台">方案平台</button></div><div id="cityList" class="city-list"></div><p id="cityCount" class="city-count"></p></aside></div></div></section>
+  </main>
+  <footer><div class="container footer-grid"><div><a class="brand" href="index.html"><span class="brand-mark">RD</span><span>红点创芯</span></a><p id="footerIntro"></p></div><div><b>联系我们</b><p id="contactInfo"></p></div><div><b>快速导航</b><p>关于我们<br>代理品牌<br>解决方案<br>新闻资讯<br>联系我们</p></div></div><div class="container copyright">© 2026 浙江红点创芯科技发展有限公司。保留所有权利。</div></footer>
+  <script src="assets/echarts.min.js"></script><script src="navigation.js"></script><script src="about.js?v=3"></script>
+</body>
+</html>

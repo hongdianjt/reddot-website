@@ -1,0 +1,4 @@
+/* 后台文本中的换行与段落，在官网前台按原样呈现 */
+#heroTitle,#heroSub,#aboutText,#footerIntro,#contactInfo,#bannerTitle,#bannerSub,#introTitle,#mediaCaption,.solution p,.listing-card p,.detail-hero h1,.detail-body h2,.detail-body>p{white-space:pre-line}
+.detail-body>div{line-height:2}.detail-body>div h2,.detail-body>div h3{margin:1.4em 0 .55em;color:#17191d;line-height:1.35}.detail-body>div p{margin:0 0 1em}.detail-body>div ul,.detail-body>div ol{margin:0 0 1.2em;padding-left:1.5em}.detail-body>div img{display:block;max-width:100%;height:auto;margin:1.5em 0;border-radius:6px}
+.home-page #heroTitle{font-size:clamp(26px,4.2vw,62px)!important;max-width:960px!important;white-space:normal!important;line-height:1.22;text-wrap:balance}.home-page #heroSub{font-size:19px;white-space:pre-line}
