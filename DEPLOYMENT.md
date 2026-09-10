@@ -25,7 +25,7 @@ npm ci --omit=dev
 cp .env.example .env
 ```
 
-编辑 `.env`，设置强随机的 `ADMIN_PASSWORD`。然后启动：
+编辑 `.env`，设置独立的 `ADMIN_USERNAME` 与 scrypt 格式的 `ADMIN_PASSWORD_HASH`。不要在代码、文档或 Git 仓库中保存明文密码。然后启动：
 
 ```bash
 set -a && source .env && set +a
@@ -42,7 +42,7 @@ sudo systemctl enable --now nginx
 sudo systemctl reload nginx
 ```
 
-完成 DNS 解析后，使用 Certbot 配置 HTTPS。上线后访问 `/admin/`，使用 `.env` 中的后台密码登录。
+完成 DNS 解析后，使用 Certbot 配置 HTTPS。上线后访问 `/admin/`，使用与 `.env` 密码哈希对应的后台密码登录。
 
 ## 备份与更新
 

@@ -12,7 +12,7 @@ npm start
 
 - 官网：`http://localhost:3000/`
 - 管理后台：`http://localhost:3000/admin/`
-- 默认后台密码：`red-dot-admin-2026`（仅用于本地演示；部署前必须在 `.env` 中更换）
+- 后台账号与密码哈希仅通过本机 `.env` 配置，不写入代码或文档。
 
 ## 当前实现
 
