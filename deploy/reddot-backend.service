@@ -1,0 +1,19 @@
+[Unit]
+Description=Red Dot Website Java Backend
+After=network.target mysqld.service
+
+[Service]
+Type=simple
+User=reddot
+WorkingDirectory=/srv/reddot-website
+EnvironmentFile=/srv/reddot-website/.env
+ExecStart=/usr/bin/java -jar /srv/reddot-website/runtime/reddot-backend.jar
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/srv/reddot-website/assets/uploads
+
+[Install]
+WantedBy=multi-user.target

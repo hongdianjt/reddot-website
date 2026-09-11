@@ -1,5 +1,6 @@
  (async()=>{let d=RedDotStore.read();try{const r=await fetch('/api/public/site',{cache:'no-store'});if(r.ok)d=await r.json();}catch(e){console.warn('正在使用本地演示数据',e)}const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   $('#heroTitle').textContent=d.settings.heroTitle;$('#heroSub').textContent=d.settings.heroSub;$('#aboutText').textContent=d.settings.about;$('#footerIntro').textContent=d.settings.footer;$('#contactInfo').innerHTML=`联系人：${esc(d.settings.contact)}<br>电话：${esc(d.settings.phone)}<br>地址：${esc(d.settings.address)}`;
+  const wechatQr=String(d.settings.wechatQrImage||'').trim(),wechatBox=$('#footerWechat');if(wechatQr&&wechatBox){const qr=$('#wechatQrCode');qr.src=/^(https?:|data:|\/)/i.test(wechatQr)?wechatQr:`assets/${wechatQr}`;wechatBox.hidden=false}
   const capabilityIcons=[
     '<svg viewBox="0 0 48 48"><rect x="13" y="13" width="17" height="17" rx="2"/><path d="M17 9V6m5 3V6m5 3V6m-10 27v3m5-3v3m5-3v3M9 17H6m3 5H6m3 5H6m27-10h3m-3 5h3m-3 5h3"/><circle cx="34" cy="34" r="7"/><path d="m39 39 4 4"/></svg>',
     '<svg viewBox="0 0 48 48"><rect x="7" y="9" width="34" height="29" rx="3"/><path d="M15 18h10M15 24h18M15 30h13M32 15v8m-4-4h8"/></svg>',

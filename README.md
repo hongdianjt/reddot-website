@@ -1,25 +1,40 @@
 # 红点创芯企业官网
 
-## 本地启动
+官网前端为原生 HTML/CSS/JavaScript，后端为 Java 21 + Spring Boot 3.5，内容、地图、登录会话等数据持久化到 MySQL 8.4。
 
-本项目已在工作区 `.tools/node` 中准备 Node.js 24 LTS。执行：
+## 本地环境
+
+工作区已安装：
+
+- Java 21：`../.tools/jdk`
+- Maven 3.9：`../.tools/maven`
+- MySQL 8.4 LTS：`../.tools/mysql`
+- MySQL 本地端口：`127.0.0.1:3307`
+
+数据库和后台密码仅保存在本机 `.env`，该文件已被 Git 忽略。
 
 ```bash
+./scripts/mysql-local.sh start
+./scripts/build-java.sh
 export PATH="/Users/hongdian/Documents/Obsidian/石江辉/.tools/node/bin:$PATH"
-cd /Users/hongdian/Documents/Obsidian/石江辉/reddot-website
-npm start
+node_modules/pm2/bin/pm2 startOrReload ecosystem.config.cjs
 ```
+
+构建脚本会将 Maven 产物原子发布到 `runtime/reddot-backend.jar`，运行中的服务不会因重新构建而被覆盖。
 
 - 官网：`http://localhost:3000/`
 - 管理后台：`http://localhost:3000/admin/`
-- 后台账号与密码哈希仅通过本机 `.env` 配置，不写入代码或文档。
 
-## 当前实现
+## 数据持久化
 
-- 前台：首页、独立的关于我们页、解决方案列表及详情、代理品牌列表、新闻资讯。
-- 关于我们：企业简介图文/视频、企业文化切换、支持搜索、筛选、悬浮和点击锁定的集团分布地图；同城公司自动聚合显示数量。
-- 后台：全局设置、关于我们媒体、解决方案、代理品牌、新闻、集团业务平台、企业文化、集团分布地图的内容编辑与默认数据恢复。
-- 服务端：Express REST API 与首次启动自动生成的 `data/site.json` 数据文件。
-- 首页：深色可配置 Hero、进入第二屏后白底黑字的吸顶导航、浅色红品牌内容区和动态星链集团业务平台。
+Flyway 启动时自动执行 `backend/src/main/resources/db/migration` 中的数据库迁移。第一次连接空数据库时，Java 后端会将原 `data/site.json` 数据导入 MySQL；导入后所有前后台读写均以 MySQL 为准，不再写入 JSON。
 
-部署请查看 [DEPLOYMENT.md](DEPLOYMENT.md)。
+主要数据表：
+
+- `site_setting`：首页、关于我们和媒体配置
+- `content_item`：解决方案、新闻、代理品牌、集团平台
+- `distribution_city` / `company`：集团城市与公司分布
+- `capability`：全流程能力
+- `admin_session` / `login_attempt`：持久化后台会话与登录限流
+
+阿里云上线见 [DEPLOYMENT.md](DEPLOYMENT.md)。

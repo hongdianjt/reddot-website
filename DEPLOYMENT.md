@@ -1,40 +1,79 @@
-# 阿里云部署说明
+# 阿里云部署说明（Java + MySQL）
 
-当前项目是 Node.js 服务，默认使用 `data/site.json` 保存后台内容；适合首期官网与内容管理上线。数据目录必须纳入服务器备份。正式生产阶段建议将该文件存储层替换为 MySQL 8，前台接口不变。
+## 推荐架构
 
-## 服务器准备
+- Alibaba Cloud Linux 3 或 Ubuntu 24.04 LTS，2 核 4GB 起
+- Java 21 LTS
+- MySQL 8.4 LTS；生产环境优先使用阿里云 RDS MySQL
+- Nginx 反向代理 Java 服务
+- systemd 守护 Spring Boot 进程
 
-建议使用 Alibaba Cloud Linux 3 或 Ubuntu 22.04 LTS，至少 2 核 4GB 内存。安全组开放 `80`、`443` 和管理用 `22` 端口，不直接对公网开放 `3000`。
+安全组仅对外开放 `80`、`443` 和限制来源的 `22`。不要将 Java 的 `3000` 端口或 MySQL `3306` 端口直接暴露到公网。
 
-安装 Node.js LTS、Nginx 与 PM2：
+## 服务器环境
+
+Alibaba Cloud Linux 3：
 
 ```bash
-curl -fsSL https://rpm.nodesource.com/setup_24.x | sudo bash -
-sudo dnf install -y nodejs nginx
-sudo npm install -g pm2
+sudo dnf install -y java-21-openjdk-devel maven nginx mysql
 ```
 
-Ubuntu 将 `dnf` 替换为 `apt-get`，并使用 NodeSource 的 Debian 安装脚本。
-
-## 发布
+Ubuntu：
 
 ```bash
-git clone <your-repository-url> /srv/reddot-website
+sudo apt-get update
+sudo apt-get install -y openjdk-21-jdk maven nginx mysql-client
+```
+
+如使用 RDS，请在 RDS 控制台创建 `reddot_website` 数据库和仅拥有该库权限的专用账号，并将 ECS 内网 IP 加入白名单。
+
+## 发布和配置
+
+```bash
+sudo useradd --system --home /srv/reddot-website --shell /sbin/nologin reddot
+sudo git clone https://github.com/hongdianjt/reddot-website.git /srv/reddot-website
+sudo chown -R reddot:reddot /srv/reddot-website
 cd /srv/reddot-website
-npm ci --omit=dev
+MAVEN_BIN=/usr/bin/mvn ./scripts/build-java.sh
 cp .env.example .env
 ```
 
-编辑 `.env`，设置独立的 `ADMIN_USERNAME` 与 scrypt 格式的 `ADMIN_PASSWORD_HASH`。不要在代码、文档或 Git 仓库中保存明文密码。然后启动：
+编辑 `.env`，填入后台密码哈希与 MySQL/RDS 内网连接信息：
 
-```bash
-set -a && source .env && set +a
-pm2 start ecosystem.config.cjs
-pm2 save
-pm2 startup
+```dotenv
+PORT=3000
+ADMIN_USERNAME=独立管理员账号
+ADMIN_PASSWORD_HASH=scrypt:随机盐:128位十六进制哈希
+DB_HOST=RDS内网地址
+DB_PORT=3306
+DB_NAME=reddot_website
+DB_USERNAME=reddot_app
+DB_PASSWORD=高强度数据库密码
+WEB_ROOT=/srv/reddot-website
+SEED_FILE=/srv/reddot-website/data/site.json
 ```
 
-将 `deploy/nginx-reddot.conf` 中的域名替换为正式域名，复制到 `/etc/nginx/conf.d/reddot.conf` 后执行：
+```bash
+sudo chown reddot:reddot /srv/reddot-website/.env
+sudo chmod 600 /srv/reddot-website/.env
+sudo mkdir -p /srv/reddot-website/assets/uploads
+sudo chown -R reddot:reddot /srv/reddot-website/assets/uploads
+```
+
+如需将旧 JSON 内容首次导入，在启动前将备份放到 `data/site.json`。仅当 MySQL 的 `site_setting` 为空时才会自动导入，不会覆盖已有数据。
+
+## 启动服务
+
+```bash
+sudo cp deploy/reddot-backend.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now reddot-backend
+sudo systemctl status reddot-backend
+```
+
+复用 `deploy/nginx-reddot.conf`，将域名替换为正式域名后：
+
+Nginx 示例已将 `client_max_body_size` 设为 `101m`，与后台最大 100MB 视频上传规则保持一致。
 
 ```bash
 sudo nginx -t
@@ -42,8 +81,14 @@ sudo systemctl enable --now nginx
 sudo systemctl reload nginx
 ```
 
-完成 DNS 解析后，使用 Certbot 配置 HTTPS。上线后访问 `/admin/`，使用与 `.env` 密码哈希对应的后台密码登录。
+完成 DNS 解析后配置 HTTPS。
 
-## 备份与更新
+## 备份
 
-每日备份 `/srv/reddot-website/data/site.json`，并将备份保存到 OSS。更新前先备份数据，再拉取代码、执行 `npm ci --omit=dev` 和 `pm2 reload reddot-website`。
+生产环境开启 RDS 自动备份和日志备份，同时定期备份：
+
+- MySQL `reddot_website` 数据库
+- `/srv/reddot-website/assets/uploads` 媒体文件
+- `.env` 的安全离线副本
+
+更新代码时先备份，再执行 `git pull`、`MAVEN_BIN=/usr/bin/mvn ./scripts/build-java.sh` 和 `systemctl restart reddot-backend`。构建脚本会原子替换 `runtime/reddot-backend.jar`，避免覆盖运行中的 JAR。Flyway 会自动执行新的版本化 SQL 迁移。

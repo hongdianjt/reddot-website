@@ -1,0 +1,45 @@
+.site-header {
+  --site-header-gutter: max(32px, calc((100% - 1360px) / 2));
+  left: 0;
+  right: 0;
+  width: 100%;
+  margin: 0;
+  padding-left: var(--site-header-gutter) !important;
+  padding-right: var(--site-header-gutter) !important;
+}
+
+.site-header > .brand {
+  position: static;
+  display: flex;
+  flex: 0 0 120px;
+  align-items: center;
+  width: 120px;
+  min-width: 120px;
+  height: 38px;
+  margin: 0;
+  gap: 10px;
+  transform: none;
+  white-space: nowrap;
+}
+
+.site-header > .brand .brand-mark {
+  display: block;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url('assets/reddot-logo-transparent.png') center / contain no-repeat;
+  font-size: 0 !important;
+}
+
+.site-header > .brand > span:last-child {
+  display: block;
+  line-height: 1.4;
+}
+
+@media (max-width: 800px) {
+  .site-header {
+    --site-header-gutter: 22px;
+  }
+}

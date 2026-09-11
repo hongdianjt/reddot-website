@@ -1,1 +1,1 @@
-.hero-media{position:absolute;z-index:0;inset:0;background:center/cover no-repeat}.hero-media video{width:100%;height:100%;object-fit:cover}.hero-shade,.hero-grid{z-index:1}.hero-content,.process{z-index:2}
+.hero-media{position:absolute;z-index:0;inset:0;background:center/cover no-repeat;overflow:hidden}.hero-media video,.hero-media iframe{width:100%;height:100%;object-fit:cover;border:0}.hero-media.has-external-video iframe{position:absolute;inset:-3%;width:106%;height:106%;pointer-events:none}.hero-shade,.hero-grid{z-index:1}.hero-content,.process{z-index:2}

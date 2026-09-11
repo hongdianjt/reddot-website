@@ -1,0 +1,84 @@
+CREATE TABLE site_setting (
+  setting_key VARCHAR(128) NOT NULL PRIMARY KEY,
+  setting_value LONGTEXT NOT NULL,
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE capability (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  step_no VARCHAR(16) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT NOT NULL,
+  keywords VARCHAR(512) NOT NULL DEFAULT '',
+  sort_order INT NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE content_item (
+  id VARCHAR(128) NOT NULL PRIMARY KEY,
+  content_type VARCHAR(32) NOT NULL,
+  title VARCHAR(255) NULL,
+  subtitle TEXT NULL,
+  category VARCHAR(64) NULL,
+  code VARCHAR(128) NULL,
+  name VARCHAR(255) NULL,
+  attribute_name VARCHAR(64) NULL,
+  platform_type VARCHAR(128) NULL,
+  city VARCHAR(128) NULL,
+  province VARCHAR(128) NULL,
+  comment_text TEXT NULL,
+  image VARCHAR(1024) NULL,
+  content_html LONGTEXT NULL,
+  layout_name VARCHAR(64) NULL,
+  publish_date DATE NULL,
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  INDEX idx_content_type_order (content_type, sort_order),
+  INDEX idx_content_type_date (content_type, publish_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE distribution_city (
+  id VARCHAR(128) NOT NULL PRIMARY KEY,
+  name VARCHAR(128) NOT NULL,
+  province VARCHAR(128) NULL,
+  level_name VARCHAR(32) NOT NULL DEFAULT 'city',
+  longitude DECIMAL(10,6) NULL,
+  latitude DECIMAL(10,6) NULL,
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  INDEX idx_city_order (sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE company (
+  id VARCHAR(128) NOT NULL PRIMARY KEY,
+  city_id VARCHAR(128) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  attribute_name VARCHAR(64) NOT NULL DEFAULT '子公司',
+  platform_type VARCHAR(128) NOT NULL,
+  comment_text TEXT NULL,
+  description_text TEXT NULL,
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  CONSTRAINT fk_company_city FOREIGN KEY (city_id) REFERENCES distribution_city(id) ON DELETE CASCADE,
+  INDEX idx_company_city_order (city_id, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE admin_session (
+  token_hash CHAR(64) NOT NULL PRIMARY KEY,
+  expires_at TIMESTAMP(3) NOT NULL,
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  INDEX idx_session_expiry (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE login_attempt (
+  client_key VARCHAR(128) NOT NULL PRIMARY KEY,
+  window_started TIMESTAMP(3) NOT NULL,
+  attempt_count INT NOT NULL DEFAULT 0,
+  blocked_until TIMESTAMP(3) NULL,
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

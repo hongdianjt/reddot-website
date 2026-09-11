@@ -7,7 +7,8 @@
   $('#introTitle').textContent=s.aboutIntroTitle;
   $('#introText').innerHTML=s.about.split(/\n\s*\n+/).filter(Boolean).map(x=>`<p>${esc(x).replace(/\n/g,'<br>')}</p>`).join('');
   const aboutMedia=$('#aboutMedia'),sharedMediaType=s.homeAboutMediaType||s.aboutMediaType,sharedMediaImage=s.homeAboutMediaImage||s.aboutMediaImage,sharedMediaPoster=s.homeAboutMediaPoster||s.aboutMediaPoster||sharedMediaImage;
-  if(sharedMediaType==='video'&&sharedMediaImage) aboutMedia.innerHTML=`<video controls playsinline preload="metadata" poster="${esc(mediaUrl(sharedMediaPoster))}"><source src="${esc(mediaUrl(sharedMediaImage))}">当前浏览器不支持视频播放。</video>`;
+  if(sharedMediaType==='external'&&s.homeAboutMediaExternalUrl){if(sharedMediaPoster)aboutMedia.style.backgroundImage=`url('${mediaUrl(sharedMediaPoster)}')`;const frame=window.RedDotExternalVideo?.iframe(s.homeAboutMediaExternalUrl,{label:'企业简介外部视频'});if(frame){aboutMedia.classList.add('has-external-video');aboutMedia.replaceChildren(frame)}}
+  else if(sharedMediaType==='video'&&sharedMediaImage) aboutMedia.innerHTML=`<video controls playsinline preload="metadata" poster="${esc(mediaUrl(sharedMediaPoster))}"><source src="${esc(mediaUrl(sharedMediaImage))}">当前浏览器不支持视频播放。</video>`;
   else aboutMedia.style.backgroundImage=`url('${mediaUrl(sharedMediaImage)}')`;
   $('#footerIntro').textContent=s.footer;
   $('#contactInfo').innerHTML=`联系人：${esc(s.contact)}<br>电话：${esc(s.phone)}<br>地址：${esc(s.address)}`;

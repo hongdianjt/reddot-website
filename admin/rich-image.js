@@ -19,7 +19,7 @@
     const selection=window.getSelection();let range=null;
     if(selection?.rangeCount)range=selection.getRangeAt(0).cloneRange();
     const input=document.createElement('input');input.type='file';input.accept='image/*';input.hidden=true;document.body.append(input);
-    input.onchange=async()=>{if(!input.files[0]){input.remove();return}try{const src=await upload(input.files[0]);const image=document.createElement('img');image.src=src;image.alt='正文图片';image.loading='lazy';if(range){range.insertNode(image);range.setStartAfter(image);range.collapse(true);selection.removeAllRanges();selection.addRange(range)}else editor.append(image);editor.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertImage'}));}catch(error){alert(error.message)}finally{input.remove()}};
+    input.onchange=async()=>{if(!input.files[0]){input.remove();return}try{const src=await upload(input.files[0]);const image=document.createElement('img');image.setAttribute('src',src);image.alt='正文图片';image.loading='lazy';if(range){range.insertNode(image);range.setStartAfter(image);range.collapse(true);selection.removeAllRanges();selection.addRange(range)}else editor.append(image);editor.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertImage'}));}catch(error){alert(error.message)}finally{input.remove()}};
     input.click();
   });
   decorate(document);new MutationObserver(()=>decorate(document)).observe(document.body,{childList:true,subtree:true});

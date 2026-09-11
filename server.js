@@ -69,7 +69,7 @@ function normalizeDistribution(data){
 }
 function hydrate(data){
   data=normalizeContent(data);
-  const settings={heroMediaType:'image',heroMediaImage:'home-hero-vehicle-system-v3.png',heroMediaPoster:'home-hero-vehicle-system-v3.png',homeAboutMediaType:'image',homeAboutMediaImage:'home-intro-chip-v2.png',homeAboutMediaPoster:'home-intro-chip-v2.png',aboutBannerTitle:'关于我们',aboutBannerSub:'连接国产芯片与汽车应用，让可靠方案走向量产。',aboutBannerImage:'hero-vehicle-network.png',aboutIntroTitle:'让国产化方案，真正走向量产',aboutMediaType:'image',aboutMediaImage:'hero-data-matrix.png',aboutMediaPoster:'hero-data-matrix.png',aboutMediaCaption:'企业介绍图片 · 后台可配置',...data.settings};
+  const settings={heroMediaType:'image',heroMediaImage:'home-hero-vehicle-system-v3.png',heroMediaPoster:'home-hero-vehicle-system-v3.png',heroMediaExternalUrl:'',homeAboutMediaType:'image',homeAboutMediaImage:'home-intro-chip-v2.png',homeAboutMediaPoster:'home-intro-chip-v2.png',homeAboutMediaExternalUrl:'',aboutBannerTitle:'关于我们',aboutBannerSub:'连接国产芯片与汽车应用，让可靠方案走向量产。',aboutBannerImage:'hero-vehicle-network.png',aboutIntroTitle:'让国产化方案，真正走向量产',aboutMediaType:'image',aboutMediaImage:'hero-data-matrix.png',aboutMediaPoster:'hero-data-matrix.png',aboutMediaCaption:'企业介绍图片 · 后台可配置',...data.settings};
   const defaultsDistribution=[
     {id:'hangzhou',name:'杭州',level:'city',longitude:120.1551,latitude:30.2741,enabled:true,companies:[['浙江红点创芯科技发展有限公司','集团中台'],['浙江红点智芯科技有限公司','前端销售平台'],['浙江红点传动科技有限公司','前端销售平台'],['杭州红点创芯软件技术有限公司','AUTOSAR 软件平台']]},
     {id:'beijing',name:'北京',level:'city',longitude:116.4074,latitude:39.9042,enabled:true,companies:[['华峻科技（北京）有限公司','方案解决平台']]},
@@ -145,7 +145,20 @@ app.post('/api/admin/login',checkLoginRate,(req,res)=>{
   res.json({token});
 });
 app.get('/api/admin/site',auth,(req,res)=>res.json(db()));
-app.put('/api/admin/settings',auth,(req,res)=>{const data=db();data.settings={...data.settings,...req.body};save(data);res.json(data.settings);});
+app.put('/api/admin/settings',auth,(req,res)=>{
+  const data=db(),incoming={...req.body};
+  for(const key of ['heroMediaType','homeAboutMediaType']){
+    if(key in incoming&&!['image','video','external'].includes(incoming[key]))return res.status(400).json({message:'媒体类型无效'});
+  }
+  for(const key of ['heroMediaExternalUrl','homeAboutMediaExternalUrl']){
+    if(!(key in incoming))continue;
+    const value=String(incoming[key]||'').trim();
+    if(value.length>2048)return res.status(400).json({message:'视频地址过长'});
+    if(value&&!/^https?:\/\//i.test(value))return res.status(400).json({message:'视频地址必须以 http:// 或 https:// 开头'});
+    incoming[key]=value;
+  }
+  data.settings={...data.settings,...incoming};save(data);res.json(data.settings);
+});
 app.post('/api/admin/upload-file',auth,upload.single('file'),(req,res)=>{if(!req.file)return res.status(400).json({message:'仅支持 JPG、PNG、WEBP、GIF、MP4、WEBM、MOV 文件'});res.json({url:`uploads/${req.file.filename}`,type:mediaTypes.videos.includes(req.file.mimetype)?'video':'image',size:req.file.size});});
 app.use((error,req,res,next)=>{if(error instanceof multer.MulterError&&error.code==='LIMIT_FILE_SIZE')return res.status(400).json({message:'文件大小超过 100MB 限制'});if(error)return res.status(400).json({message:error.message||'上传失败'});next();});
 app.post('/api/admin/upload',auth,(req,res)=>{
