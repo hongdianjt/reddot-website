@@ -240,6 +240,20 @@ show_status() {
     && info "后端本地探活成功 (127.0.0.1:3000)" || warn "后端探活失败，请查看日志：journalctl -u reddot-backend -f"
 }
 
+# 等待后端就绪（Spring Boot 启动需要 10~30 秒，轮询最多 90 秒）
+wait_for_backend() {
+  local waited=0
+  until curl -fsS -o /dev/null "http://127.0.0.1:3000" 2>/dev/null; do
+    sleep 3
+    waited=$((waited + 3))
+    if (( waited >= 90 )); then
+      warn "后端 ${waited}s 内未就绪，请查看日志：sudo bash deploy/deploy.sh logs"
+      return 1
+    fi
+  done
+  info "后端探活成功 (127.0.0.1:3000，等待 ${waited}s)"
+}
+
 # ============================ 主流程 ============================
 CMD="${1:-}"
 require_root
@@ -254,6 +268,7 @@ case "${CMD}" in
     build_backend
     install_systemd_service
     install_nginx
+    wait_for_backend || true
     show_status
     info "部署完成。请检查下列事项："
     echo "  1) 确认 ${APP_HOME}/.env 中的 ADMIN_PASSWORD_HASH 与 DB_PASSWORD 符合预期"
@@ -267,6 +282,7 @@ case "${CMD}" in
     systemctl daemon-reload
     systemctl restart reddot-backend
     systemctl reload nginx 2>/dev/null || true
+    wait_for_backend || true
     show_status
     info "更新完成。"
     ;;
@@ -276,8 +292,8 @@ case "${CMD}" in
   restart)
     systemctl restart reddot-backend
     systemctl reload nginx 2>/dev/null || true
-    info "已重启后端与 nginx，10 秒后探活..."
-    sleep 10
+    info "已重启后端与 nginx，等待服务就绪..."
+    wait_for_backend || true
     show_status
     ;;
   logs)
