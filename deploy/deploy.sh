@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # 红点创芯官网 一键部署脚本（Java + systemd + Nginx）
-# 适用系统：Alibaba Cloud Linux 3（dnf）
+# 适用系统：Alibaba Cloud Linux 3/4（dnf）
 # 架构：前端静态页面由 Spring Boot 后端 serve，Nginx 反向代理 3000 端口
 #
 # 首次执行：
@@ -88,7 +88,16 @@ create_service_user() {
 # ============================ 3. 初始化数据库 ============================
 ensure_database() {
   # 仅当使用本机 MySQL 时针对 reddot_app 建库授权；若使用 RDS 请忽略并在 RDS 控制台手动创建。
-  if ! is_installed mysql; then
+  if is_installed mysql; then
+    if ! systemctl is-active --quiet mysqld 2>/dev/null; then
+      info "启动本机 MySQL 服务（首次安装需初始化）..."
+      systemctl enable --now mysqld
+      for _ in $(seq 1 30); do
+        mysqladmin --silent ping 2>/dev/null && break
+        sleep 1
+      done
+    fi
+  else
     warn "未检测到本机 MySQL，跳过数据库初始化。如使用 RDS，请在控制台手动创建库与账号。"
     return
   fi
@@ -145,6 +154,11 @@ EOF
 # ============================ 5. 构建 ============================
 build_backend() {
   info "构建后端 JAR（mvn package -> runtime/reddot-backend.jar）..."
+  if [[ -z "${JAVA_HOME:-}" ]]; then
+    for d in /usr/lib/jvm/java-21-openjdk /usr/lib/jvm/java-21; do
+      if [[ -d "$d" ]]; then export JAVA_HOME="$d"; break; fi
+    done
+  fi
   MAVEN_BIN="$(command -v mvn)" bash "${BUILD_SCRIPT}"
   chown -R "${APP_USER}:${APP_USER}" "${APP_HOME}/runtime"
   info "后端构建完成"
@@ -168,8 +182,15 @@ install_nginx() {
   if [[ -f "${conf}" ]]; then
     info "已存在 nginx 配置，保留"
   else
-    info "根据部署模板生成 nginx 配置（域名：${DOMAIN}）..."
-    sed "s/server_name example.com www.example.com;/server_name ${DOMAIN} www.${DOMAIN};/" \
+    # DOMAIN 若为 IP 则不加 www 前缀
+    local server_names
+    if [[ "${DOMAIN}" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      server_names="${DOMAIN}"
+    else
+      server_names="${DOMAIN} www.${DOMAIN}"
+    fi
+    info "根据部署模板生成 nginx 配置（server_name：${server_names}）..."
+    sed "s/server_name example.com www.example.com;/server_name ${server_names};/" \
       "${APP_HOME}/deploy/nginx-reddot.conf" > "${conf}"
   fi
   nginx -t || die "nginx 配置测试失败"
