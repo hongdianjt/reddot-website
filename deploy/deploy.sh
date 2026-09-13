@@ -4,21 +4,16 @@
 # 适用系统：Alibaba Cloud Linux 3/4（dnf）
 # 架构：前端静态页面由 Spring Boot 后端 serve，Nginx 反向代理 3000 端口
 #
-# 首次执行：
-#   sudo bash deploy/deploy.sh init        # 初始化服务器环境并完成全部部署
-#
-# 更新代码：
-#   sudo bash deploy/deploy.sh update      # git pull + 构建 + 重启后端 + 重载 nginx
-#
-# 单独查看状态：
-#   sudo bash deploy/deploy.sh status
-#
-# 可选环境变量（按需覆盖）：
-#   DOMAIN=www.example.com \
-#   DB_PASSWORD=<高强度数据库密码> \
-#   ADMIN_USERNAME=<管理员账号> \
-#   ADMIN_PASSWORD_HASH=<scrypt:盐:哈希> \
+# 首次执行（需提供管理员凭据；之后重跑会自动读取已有 .env，无需任何参数）：
+#   DOMAIN=域名或IP DB_PASSWORD=数据库密码 ADMIN_USERNAME=账号 ADMIN_PASSWORD_HASH='scrypt:盐:哈希' \
 #   sudo bash deploy/deploy.sh init
+#
+# 日常命令（全部无需参数，自动读取已有 .env）：
+#   sudo bash deploy/deploy.sh init      # 重新应用配置 + 构建 + 重启（幂等，可重复执行）
+#   sudo bash deploy/deploy.sh update    # git pull + 构建 + 重启后端 + 重载 nginx
+#   sudo bash deploy/deploy.sh restart   # 仅重启服务（不构建），最快
+#   sudo bash deploy/deploy.sh logs      # 实时查看后端日志
+#   sudo bash deploy/deploy.sh status    # 查看服务状态与探活
 
 set -euo pipefail
 
@@ -104,11 +99,16 @@ ensure_database() {
     return
   fi
   local pass
+  local env_file="${APP_HOME}/.env"
+  if [[ -z "${DB_PASSWORD}" && -f "${env_file}" ]]; then
+    # 未传参时从现有 .env 读取，保证与后端配置始终一致
+    DB_PASSWORD="$(grep -E '^DB_PASSWORD=' "${env_file}" | head -1 | cut -d= -f2-)"
+    [[ -n "${DB_PASSWORD}" ]] && info "从已有 .env 读取数据库密码"
+  fi
   if [[ -n "${DB_PASSWORD}" ]]; then
     pass="${DB_PASSWORD}"
   else
-    warn "未设置 DB_PASSWORD，请稍后编辑 .env 补充数据库密码，或使用环境变量传入。"
-    # 生成一个随机密码并作为默认值，避免流程中断
+    warn "未设置 DB_PASSWORD，自动生成随机密码（已同步写入后续 .env）"
     pass="$(openssl rand -hex 12)"
     info "已生成本地数据库密码：${pass}"
   fi
@@ -189,24 +189,24 @@ XML
 # ============================ 6. 注册并启动 systemd 服务 ============================
 install_systemd_service() {
   local unit="/etc/systemd/system/reddot-backend.service"
-  if [[ ! -f "${unit}" ]]; then
-    info "安装 systemd 单元 ${unit} ..."
-    # 系统默认 java 可能是老版本（如阿里云预装 Dragonwell 8），优先解析 java-21 完整路径
-    local java_bin="/usr/bin/java"
-    if ! /usr/bin/java -version 2>&1 | grep -q 'version "21'; then
-      local j21
-      j21="$(ls -d /usr/lib/jvm/java-21-openjdk*/bin/java 2>/dev/null | head -1 || true)"
-      if [[ -n "${j21}" ]]; then
-        java_bin="${j21}"
-        info "检测到 /usr/bin/java 非 21 版本，改用 ${java_bin}"
-      fi
+  info "安装/更新 systemd 单元 ${unit} ..."
+  # 系统默认 java 可能是老版本（如阿里云预装 Dragonwell 8），优先解析 java-21 完整路径
+  local java_bin="/usr/bin/java"
+  if ! /usr/bin/java -version 2>&1 | grep -q 'version "21'; then
+    local j21
+    j21="$(ls -d /usr/lib/jvm/java-21-openjdk*/bin/java 2>/dev/null | head -1 || true)"
+    if [[ -n "${j21}" ]]; then
+      java_bin="${j21}"
+      info "检测到 /usr/bin/java 非 21 版本，改用 ${java_bin}"
     fi
-    sed "s|ExecStart=/usr/bin/java|ExecStart=${java_bin}|" \
-      "${APP_HOME}/deploy/reddot-backend.service" > "${unit}"
   fi
+  # 每次都从模板重新生成，确保修复已存在的旧单元文件
+  sed "s|ExecStart=/usr/bin/java|ExecStart=${java_bin}|" \
+    "${APP_HOME}/deploy/reddot-backend.service" > "${unit}"
   systemctl daemon-reload
   systemctl enable --now reddot-backend
-  info "systemd 服务已启动"
+  systemctl restart reddot-backend
+  info "systemd 服务已启动（java: ${java_bin}）"
 }
 
 # ============================ 7. 配置并启动 Nginx ============================
@@ -273,8 +273,20 @@ case "${CMD}" in
   status)
     show_status
     ;;
+  restart)
+    systemctl restart reddot-backend
+    systemctl reload nginx 2>/dev/null || true
+    info "已重启后端与 nginx，10 秒后探活..."
+    sleep 10
+    show_status
+    ;;
+  logs)
+    journalctl -u reddot-backend -n 100 --no-pager
+    echo "--- 实时日志（Ctrl+C 退出）---"
+    journalctl -u reddot-backend -f --no-pager
+    ;;
   *)
-    echo "用法：sudo bash deploy/deploy.sh {init|update|status}"
+    echo "用法：sudo bash deploy/deploy.sh {init|update|restart|logs|status}"
     exit 1
     ;;
 esac
