@@ -155,6 +155,25 @@ EOF
 
 # ============================ 5. 构建 ============================
 build_backend() {
+  # 国内网络加速：如未配置 Maven 镜像，写入阿里云镜像
+  local mvn_settings="${HOME}/.m2/settings.xml"
+  if [[ ! -f "${mvn_settings}" ]]; then
+    info "写入阿里云 Maven 镜像配置（${mvn_settings}）..."
+    mkdir -p "$(dirname "${mvn_settings}")"
+    cat > "${mvn_settings}" <<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">
+  <mirrors>
+    <mirror>
+      <id>aliyunmaven</id>
+      <mirrorOf>central</mirrorOf>
+      <name>Aliyun Maven Mirror</name>
+      <url>https://maven.aliyun.com/repository/public</url>
+    </mirror>
+  </mirrors>
+</settings>
+XML
+  fi
   info "构建后端 JAR（mvn package -> runtime/reddot-backend.jar）..."
   if [[ -z "${JAVA_HOME:-}" ]]; then
     for d in /usr/lib/jvm/java-21-openjdk /usr/lib/jvm/java-21; do
