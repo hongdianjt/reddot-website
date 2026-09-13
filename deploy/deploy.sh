@@ -64,6 +64,8 @@ install_deps() {
 # ============================ 2. 拉取/更新代码 ============================
 clone_or_update() {
   mkdir -p "${APP_HOME}"
+  # 仓库属主为 reddot 服务用户，root 执行 git 时需加入安全目录例外
+  git config --global --add safe.directory "${APP_HOME}" 2>/dev/null || true
   if [[ -d "${APP_HOME}/.git" ]]; then
     info "检测到已有代码，执行 git pull 更新..."
     git -C "${APP_HOME}" pull --ff-only
