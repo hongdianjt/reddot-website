@@ -4,8 +4,8 @@
 # 适用系统：Alibaba Cloud Linux 3/4（dnf）
 # 架构：前端静态页面由 Spring Boot 后端 serve，Nginx 反向代理 3000 端口
 #
-# 首次执行（需提供管理员凭据；之后重跑会自动读取已有 .env，无需任何参数）：
-#   DOMAIN=域名或IP DB_PASSWORD=数据库密码 ADMIN_USERNAME=账号 ADMIN_PASSWORD_HASH='scrypt:盐:哈希' \
+# 首次执行（需提供管理员密码哈希；用户名默认 adminreddote，可覆盖）：
+#   DOMAIN=域名或IP DB_PASSWORD=数据库密码 ADMIN_PASSWORD_HASH='scrypt:盐:哈希' \
 #   sudo bash deploy/deploy.sh init
 #
 # 日常命令（全部无需参数，自动读取已有 .env）：
@@ -27,7 +27,7 @@ BUILD_SCRIPT="${APP_HOME}/scripts/build-java.sh"
 # 用户可覆盖
 DOMAIN="${DOMAIN:-example.com}"
 DB_PASSWORD="${DB_PASSWORD:-}"
-ADMIN_USERNAME="${ADMIN_USERNAME:-}"
+ADMIN_USERNAME="${ADMIN_USERNAME:-adminreddote}"
 ADMIN_PASSWORD_HASH="${ADMIN_PASSWORD_HASH:-}"
 
 RED='\033[0;31m'
@@ -131,8 +131,8 @@ configure_env() {
     info "已存在 .env，保留现有配置"
     return
   fi
-  [[ -n "${ADMIN_USERNAME}" && -n "${ADMIN_PASSWORD_HASH}" ]] \
-    || die "首次部署必须提供 ADMIN_USERNAME 与 ADMIN_PASSWORD_HASH（环境变量），用于后台登录。吊销需注意安全。"
+  [[ -n "${ADMIN_PASSWORD_HASH}" ]] \
+    || die "首次部署必须提供 ADMIN_PASSWORD_HASH（scrypt:盐:哈希），用于后台登录。用户名默认 adminreddote。"
 
   info "生成 ${env_file} ..."
   local mysql_root="${MYSQL_ROOT_PASSWORD:-replace-with-local-root-password}"
