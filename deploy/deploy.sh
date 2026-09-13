@@ -116,6 +116,7 @@ ensure_database() {
   mysql -uroot <<SQL
 CREATE DATABASE IF NOT EXISTS reddot_website DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS 'reddot_app'@'localhost' IDENTIFIED BY '${pass}';
+ALTER USER 'reddot_app'@'localhost' IDENTIFIED BY '${pass}';
 GRANT ALL PRIVILEGES ON reddot_website.* TO 'reddot_app'@'localhost';
 FLUSH PRIVILEGES;
 SQL
@@ -190,7 +191,18 @@ install_systemd_service() {
   local unit="/etc/systemd/system/reddot-backend.service"
   if [[ ! -f "${unit}" ]]; then
     info "安装 systemd 单元 ${unit} ..."
-    cp "${APP_HOME}/deploy/reddot-backend.service" "${unit}"
+    # 系统默认 java 可能是老版本（如阿里云预装 Dragonwell 8），优先解析 java-21 完整路径
+    local java_bin="/usr/bin/java"
+    if ! /usr/bin/java -version 2>&1 | grep -q 'version "21'; then
+      local j21
+      j21="$(ls -d /usr/lib/jvm/java-21-openjdk*/bin/java 2>/dev/null | head -1 || true)"
+      if [[ -n "${j21}" ]]; then
+        java_bin="${j21}"
+        info "检测到 /usr/bin/java 非 21 版本，改用 ${java_bin}"
+      fi
+    fi
+    sed "s|ExecStart=/usr/bin/java|ExecStart=${java_bin}|" \
+      "${APP_HOME}/deploy/reddot-backend.service" > "${unit}"
   fi
   systemctl daemon-reload
   systemctl enable --now reddot-backend
