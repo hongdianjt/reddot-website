@@ -6,6 +6,7 @@
 - Java 21 LTS
 - MySQL 8.4 LTS；生产环境优先使用阿里云 RDS MySQL
 - Nginx 反向代理 Java 服务
+- FFmpeg（用于后台上传视频后生成 HLS 分片）
 - systemd 守护 Spring Boot 进程
 
 安全组仅对外开放 `80`、`443` 和限制来源的 `22`。不要将 Java 的 `3000` 端口或 MySQL `3306` 端口直接暴露到公网。
@@ -15,14 +16,14 @@
 Alibaba Cloud Linux 3：
 
 ```bash
-sudo dnf install -y java-21-openjdk-devel maven nginx mysql
+sudo dnf install -y java-21-openjdk-devel maven nginx mysql ffmpeg
 ```
 
 Ubuntu：
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y openjdk-21-jdk maven nginx mysql-client
+sudo apt-get install -y openjdk-21-jdk maven nginx mysql-client ffmpeg
 ```
 
 如使用 RDS，请在 RDS 控制台创建 `reddot_website` 数据库和仅拥有该库权限的专用账号，并将 ECS 内网 IP 加入白名单。
@@ -51,7 +52,10 @@ DB_USERNAME=reddot_app
 DB_PASSWORD=高强度数据库密码
 WEB_ROOT=/srv/reddot-website
 SEED_FILE=/srv/reddot-website/data/site.json
+FFMPEG_COMMAND=/usr/bin/ffmpeg
 ```
+
+使用 `ffmpeg -hide_banner -h muxer=hls` 确认服务器上安装的 FFmpeg 包含 HLS 封装器。后台会为新上传的视频生成 4 秒分片及 720P/480P 自适应播放列表；如 FFmpeg 不可用，则保留原始视频作为回退源。
 
 ```bash
 sudo chown reddot:reddot /srv/reddot-website/.env

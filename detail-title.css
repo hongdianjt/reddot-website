@@ -17,6 +17,21 @@
   -webkit-line-clamp: 2;
 }
 
+#detail .detail-content-title {
+  display: -webkit-box;
+  width: min(15em, 100%);
+  max-width: 15em;
+  margin: 0 auto 42px;
+  overflow: hidden;
+  color: #17191d;
+  font-size: clamp(32px, 3.2vw, 44px);
+  line-height: 1.25;
+  text-align: center;
+  word-break: break-all;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 @media (max-width: 800px) {
   #detail .detail-hero .container {
     padding-bottom: 18px;
@@ -25,5 +40,10 @@
   #detail .detail-hero h1 {
     font-size: clamp(28px, 7.2vw, 32px);
     line-height: 1.25;
+  }
+
+  #detail .detail-content-title {
+    margin-bottom: 30px;
+    font-size: clamp(27px, 7vw, 32px);
   }
 }

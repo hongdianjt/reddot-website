@@ -6,6 +6,8 @@ import com.reddotchip.website.repository.SiteRepository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,7 +26,9 @@ public class SiteService {
   private static final Set<String> SETTING_KEYS = Set.of(
     "heroTitle", "heroSub", "phone", "contact", "address", "about", "footer", "wechatQrImage",
     "heroMediaType", "heroMediaImage", "heroMediaPoster", "heroMediaExternalUrl",
+    "heroMediaHlsUrl", "heroMediaMobileImage", "heroMediaMobileHlsUrl",
     "homeAboutMediaType", "homeAboutMediaImage", "homeAboutMediaPoster", "homeAboutMediaExternalUrl",
+    "homeAboutMediaHlsUrl", "homeAboutMediaMobileImage", "homeAboutMediaMobileHlsUrl",
     "aboutBannerTitle", "aboutBannerSub", "aboutBannerImage", "aboutIntroTitle",
     "aboutMediaType", "aboutMediaImage", "aboutMediaPoster", "aboutMediaCaption"
   );
@@ -70,9 +74,20 @@ public class SiteService {
   public List<Map<String, Object>> replaceCollection(String collection, List<Map<String, Object>> request) {
     if (!SiteRepository.COLLECTIONS.contains(collection)) throw new IllegalArgumentException("未知内容类型");
     if (request.size() > 2_000) throw new IllegalArgumentException("单次保存的数据过多");
+    boolean publicationCollection = Set.of("solutions", "news").contains(collection);
+    Map<String, Map<String, Object>> existing = new LinkedHashMap<>();
+    if (publicationCollection) repository.content(collection).forEach(item -> existing.put(String.valueOf(item.get("id")), item));
     List<Map<String, Object>> cleaned = request.stream().map(item -> {
       Map<String, Object> copy = new LinkedHashMap<>(item);
       if (copy.containsKey("content")) copy.put("content", sanitizeHtml(copy.get("content")));
+      if (publicationCollection) {
+        Map<String, Object> previous = existing.get(String.valueOf(copy.get("id")));
+        boolean enabled = isEnabled(copy.get("enabled"));
+        boolean wasPublished = previous != null && isEnabled(previous.get("enabled"));
+        if (!enabled) copy.remove("publishedAt");
+        else if (wasPublished && previous.get("publishedAt") != null) copy.put("publishedAt", previous.get("publishedAt"));
+        else copy.put("publishedAt", Instant.now().truncatedTo(ChronoUnit.SECONDS).toString());
+      }
       return copy;
     }).toList();
     return repository.replaceContent(collection, cleaned);
@@ -179,6 +194,7 @@ public class SiteService {
   }
 
   private static String singular(String collection) { return collection.endsWith("s") ? collection.substring(0, collection.length() - 1) : collection; }
+  private static boolean isEnabled(Object value) { return value == null || value instanceof Boolean flag && flag || !(value instanceof Boolean) && Boolean.parseBoolean(String.valueOf(value)); }
   private static String at(List<?> row, int index) { return row.size() > index && row.get(index) != null ? String.valueOf(row.get(index)) : ""; }
   static String sanitizeHtml(Object html) {
     Safelist safelist = Safelist.relaxed()

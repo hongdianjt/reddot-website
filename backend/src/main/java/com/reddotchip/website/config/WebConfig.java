@@ -1,6 +1,7 @@
 package com.reddotchip.website.config;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
@@ -25,9 +26,9 @@ public class WebConfig implements WebMvcConfigurer {
     registry.addResourceHandler("/*.html")
       .addResourceLocations(rootLocation).setCacheControl(CacheControl.noStore()).resourceChain(true);
     registry.addResourceHandler("/*.css", "/*.js")
-      .addResourceLocations(rootLocation).setCachePeriod(3600).resourceChain(true);
+      .addResourceLocations(rootLocation).setCacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePublic()).resourceChain(true);
     registry.addResourceHandler("/assets/**")
-      .addResourceLocations(assetLocation).setCachePeriod(3600).resourceChain(true);
+      .addResourceLocations(assetLocation).setCacheControl(CacheControl.maxAge(Duration.ofDays(30)).cachePublic()).resourceChain(true);
     registry.addResourceHandler("/admin/**")
       .addResourceLocations(adminLocation).setCachePeriod(3600).resourceChain(true);
   }

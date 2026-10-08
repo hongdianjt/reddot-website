@@ -1,10 +1,12 @@
 package com.reddotchip.website.web;
 
+import com.reddotchip.website.service.HlsTranscodeService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -28,9 +30,11 @@ public class UploadController {
   private static final Set<String> VIDEO_EXTENSIONS = Set.of("mp4", "webm", "mov");
   private static final Pattern DATA_IMAGE = Pattern.compile("^data:image/(png|jpeg|webp|gif);base64,([A-Za-z0-9+/=]+)$");
   private final Path uploadDirectory;
+  private final HlsTranscodeService hlsTranscodeService;
 
-  public UploadController(@Value("${app.web-root}") String webRoot) throws IOException {
+  public UploadController(@Value("${app.web-root}") String webRoot, HlsTranscodeService hlsTranscodeService) throws IOException {
     uploadDirectory = Path.of(webRoot).toAbsolutePath().normalize().resolve("assets/uploads");
+    this.hlsTranscodeService = hlsTranscodeService;
     Files.createDirectories(uploadDirectory);
   }
 
@@ -44,7 +48,18 @@ public class UploadController {
     String name = "upload-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8) + "." + (extension.equals("jpeg") ? "jpg" : extension);
     Path target = safeTarget(name);
     Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-    return Map.of("url", "uploads/" + name, "type", video ? "video" : "image", "size", file.getSize());
+    Map<String, Object> result = new LinkedHashMap<>();
+    result.put("url", "uploads/" + name);
+    result.put("type", video ? "video" : "image");
+    result.put("size", file.getSize());
+    if (video) {
+      String streamName = name.substring(0, name.lastIndexOf('.')) + "-hls";
+      HlsTranscodeService.Result hls = hlsTranscodeService.transcode(target, safeTarget(streamName), "uploads/" + streamName);
+      result.put("hlsUrl", hls.playlist());
+      result.put("segmented", hls.success());
+      result.put("message", hls.message());
+    }
+    return result;
   }
 
   @PostMapping("/upload")

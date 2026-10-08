@@ -1,10 +1,11 @@
 package com.reddotchip.website.repository;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -51,7 +52,10 @@ public class SiteRepository {
 
   public List<Map<String, Object>> content(String type) {
     if (!COLLECTIONS.contains(type)) throw new IllegalArgumentException("Unknown collection");
-    return jdbc.query("SELECT * FROM content_item WHERE content_type=? ORDER BY sort_order, created_at", this::contentRow, type);
+    String order = Set.of("solutions", "news").contains(type)
+      ? "published_at IS NULL, published_at DESC, publish_date DESC, created_at DESC"
+      : "sort_order, created_at";
+    return jdbc.query("SELECT * FROM content_item WHERE content_type=? ORDER BY " + order, this::contentRow, type);
   }
 
   private Map<String, Object> contentRow(ResultSet rs, int row) throws SQLException {
@@ -70,8 +74,10 @@ public class SiteRepository {
     put(item, "image", rs.getString("image"));
     put(item, "content", rs.getString("content_html"));
     put(item, "layout", rs.getString("layout_name"));
-    Date date = rs.getDate("publish_date");
-    if (date != null) item.put("date", date.toLocalDate().toString());
+    Timestamp date = rs.getTimestamp("publish_date");
+    if (date != null) item.put("date", date.toLocalDateTime().withNano(0).toString().replace('T', ' '));
+    Timestamp publishedAt = rs.getTimestamp("published_at");
+    if (publishedAt != null) item.put("publishedAt", publishedAt.toInstant().toString());
     item.put("enabled", rs.getBoolean("enabled"));
     return item;
   }
@@ -83,12 +89,12 @@ public class SiteRepository {
     int order = 0;
     for (Map<String, Object> item : items) {
       jdbc.update("""
-        INSERT INTO content_item(id,content_type,title,subtitle,category,code,name,attribute_name,platform_type,city,province,comment_text,image,content_html,layout_name,publish_date,enabled,sort_order)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        INSERT INTO content_item(id,content_type,title,subtitle,category,code,name,attribute_name,platform_type,city,province,comment_text,image,content_html,layout_name,publish_date,published_at,enabled,sort_order)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         """,
         text(item, "id"), type, nullable(item, "title"), nullable(item, "subtitle"), nullable(item, "category"), nullable(item, "code"),
         nullable(item, "name"), nullable(item, "attribute"), nullable(item, "type"), nullable(item, "city"), nullable(item, "province"),
-        nullable(item, "comment"), nullable(item, "image"), nullable(item, "content"), nullable(item, "layout"), date(item.get("date")),
+        nullable(item, "comment"), nullable(item, "image"), nullable(item, "content"), nullable(item, "layout"), dateTime(item.get("date")), timestamp(item.get("publishedAt")),
         bool(item.get("enabled"), true), order++
       );
     }
@@ -181,5 +187,21 @@ public class SiteRepository {
   private static String nullable(Map<String, Object> map, String key) { Object value = map.get(key); return value == null ? null : String.valueOf(value); }
   private static boolean bool(Object value, boolean fallback) { return value == null ? fallback : value instanceof Boolean flag ? flag : Boolean.parseBoolean(String.valueOf(value)); }
   private static BigDecimal decimal(Object value) { return value == null || String.valueOf(value).isBlank() ? null : new BigDecimal(String.valueOf(value)); }
-  private static Date date(Object value) { return value == null || String.valueOf(value).isBlank() ? null : Date.valueOf(LocalDate.parse(String.valueOf(value))); }
+  private static Timestamp dateTime(Object value) {
+    if (value == null || String.valueOf(value).isBlank()) return null;
+    String text = String.valueOf(value).trim().replace('T', ' ');
+    if (text.length() == 10) text += " 00:00:00";
+    else if (text.length() == 16) text += ":00";
+    try {
+      Timestamp result = Timestamp.valueOf(text);
+      result.setNanos(0);
+      return result;
+    }
+    catch (RuntimeException error) { throw new IllegalArgumentException("发布日期格式无效"); }
+  }
+  private static Timestamp timestamp(Object value) {
+    if (value == null || String.valueOf(value).isBlank()) return null;
+    try { return Timestamp.from(Instant.parse(String.valueOf(value)).truncatedTo(ChronoUnit.SECONDS)); }
+    catch (RuntimeException error) { throw new IllegalArgumentException("发布时间格式无效"); }
+  }
 }

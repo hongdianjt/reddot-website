@@ -24,6 +24,8 @@ spring:
 app:
   web-root: ${WEB_ROOT:..}
   seed-file: ${SEED_FILE:../data/site.json}
+  video:
+    ffmpeg-command: ${FFMPEG_COMMAND:ffmpeg}
   admin:
     username: ${ADMIN_USERNAME:}
     password-hash: ${ADMIN_PASSWORD_HASH:}

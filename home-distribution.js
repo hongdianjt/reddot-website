@@ -1,11 +1,13 @@
 (async()=>{
   const $=selector=>document.querySelector(selector);
-  if(!$('#homeChinaMap')||!window.echarts)return;
+  if(!$('#homeChinaMap'))return;
+  const near=element=>new Promise(resolve=>{if(!('IntersectionObserver'in window)){resolve();return}const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){observer.disconnect();resolve()}},{rootMargin:'600px 0px'});observer.observe(element)});
+  const loadScript=src=>new Promise((resolve,reject)=>{if(window.echarts){resolve();return}const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=reject;document.head.append(script)});
   const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const companyName=company=>company?.name||company?.[0]||'';
   const companyType=company=>company?.type||company?.[1]||'';
   let data, map, filter='all', query='', selected='', hovered='';
-  try{data=await fetch('/api/public/site',{cache:'no-store'}).then(response=>response.json())}catch(error){return}
+  try{data=await fetch('/api/public/site',{cache:'no-store'}).then(response=>response.json());await near($('#homeChinaMap'));await loadScript('assets/echarts.min.js')}catch(error){return}
   const distribution=Array.isArray(data.distribution)?data.distribution:[];
   const available=()=>distribution.filter(city=>city.enabled!==false&&Number.isFinite(Number(city.longitude))&&Number.isFinite(Number(city.latitude)));
   const cities=()=>available().filter(city=>!query||`${city.name}${(city.companies||[]).map(companyName).join('')}`.includes(query)).filter(city=>filter==='all'||(city.companies||[]).some(company=>companyType(company).includes(filter)));
