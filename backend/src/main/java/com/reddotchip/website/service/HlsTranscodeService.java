@@ -53,7 +53,7 @@ public class HlsTranscodeService {
     List<String> command = new ArrayList<>(List.of(
       ffmpegCommand, "-hide_banner", "-loglevel", "error", "-y", "-i", source.toString(),
       "-map", "0:v:0", "-map", "0:a:0?", "-c:v", "libx264", "-preset", "veryfast", "-crf", crf,
-      "-maxrate", maxRate, "-bufsize", maxRate, "-vf", "scale=w=" + width + ":h=" + height + ":force_original_aspect_ratio=decrease:force_divisible_by=2",
+      "-maxrate", maxRate, "-bufsize", maxRate, "-vf", "scale=w=" + width + ":h=" + height + ":force_original_aspect_ratio=decrease,scale=trunc(iw/2)*2:trunc(ih/2)*2",
       "-c:a", "aac", "-b:a", "128k", "-ac", "2", "-force_key_frames", "expr:gte(t,n_forced*4)",
       "-f", "hls", "-hls_time", "4", "-hls_playlist_type", "vod", "-hls_flags", "independent_segments+temp_file",
       "-hls_segment_filename", directory.resolve("segment-%05d.ts").toString(), playlist.toString()

@@ -50,6 +50,7 @@ public class UploadController {
     Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
     Map<String, Object> result = new LinkedHashMap<>();
     result.put("url", "uploads/" + name);
+    result.put("originalName", originalName(file.getOriginalFilename()));
     result.put("type", video ? "video" : "image");
     result.put("size", file.getSize());
     if (video) {
@@ -86,5 +87,12 @@ public class UploadController {
     String value = String.valueOf(filename).toLowerCase(Locale.ROOT);
     int dot = value.lastIndexOf('.');
     return dot < 0 ? "" : value.substring(dot + 1);
+  }
+
+  private static String originalName(String filename) {
+    String value = String.valueOf(filename).replace('\\', '/').trim();
+    int slash = value.lastIndexOf('/');
+    if (slash >= 0) value = value.substring(slash + 1);
+    return value.length() > 255 ? value.substring(value.length() - 255) : value;
   }
 }

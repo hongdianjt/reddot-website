@@ -12,7 +12,7 @@ final class DefaultSiteData {
     Map<String, Object> settings = new LinkedHashMap<>();
     settings.put("heroTitle", "浙江红点创芯科技发展有限公司");
     settings.put("heroSub", "汽车电子产业国产芯片导入风险管理与供应链生态安全服务集团");
-    settings.put("heroMediaType", "image"); settings.put("heroMediaImage", "home-hero-vehicle-system-v3.jpg"); settings.put("heroMediaPoster", "home-hero-vehicle-system-v3.jpg"); settings.put("heroMediaExternalUrl", ""); settings.put("heroMediaHlsUrl", ""); settings.put("heroMediaMobileImage", ""); settings.put("heroMediaMobileHlsUrl", "");
+    settings.put("heroMediaType", "image"); settings.put("heroMediaImage", "home-hero-vehicle-system-v3.jpg"); settings.put("heroMediaFileName", "home-hero-vehicle-system-v3.jpg"); settings.put("heroMediaPoster", ""); settings.put("heroMediaExternalUrl", ""); settings.put("heroMediaHlsUrl", ""); settings.put("heroMediaMobileImage", "home-hero-vehicle-system-v3.jpg"); settings.put("heroMediaMobileHlsUrl", "");
     settings.put("homeAboutMediaType", "image"); settings.put("homeAboutMediaImage", "home-about-chip-hd.jpg"); settings.put("homeAboutMediaPoster", "home-intro-chip-v2.jpg"); settings.put("homeAboutMediaExternalUrl", ""); settings.put("homeAboutMediaHlsUrl", ""); settings.put("homeAboutMediaMobileImage", ""); settings.put("homeAboutMediaMobileHlsUrl", "");
     settings.put("about", "红点创芯聚焦汽车电子产业国产芯片导入风险管理与供应链生态安全，连接整车厂、Tier 1、芯片原厂与产业伙伴。");
     settings.put("footer", "红点创芯专注于汽车芯片国产化与车规级产业链能力建设。");

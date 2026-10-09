@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SiteService {
   private static final Set<String> SETTING_KEYS = Set.of(
     "heroTitle", "heroSub", "phone", "contact", "address", "about", "footer", "wechatQrImage",
-    "heroMediaType", "heroMediaImage", "heroMediaPoster", "heroMediaExternalUrl",
+    "heroMediaType", "heroMediaImage", "heroMediaFileName", "heroMediaPoster", "heroMediaExternalUrl",
     "heroMediaHlsUrl", "heroMediaMobileImage", "heroMediaMobileHlsUrl",
     "homeAboutMediaType", "homeAboutMediaImage", "homeAboutMediaPoster", "homeAboutMediaExternalUrl",
     "homeAboutMediaHlsUrl", "homeAboutMediaMobileImage", "homeAboutMediaMobileHlsUrl",
