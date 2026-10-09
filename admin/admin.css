@@ -7,3 +7,22 @@
 .panel{width:100%}
 @media (min-width:1600px){.admin-main{padding-inline:40px}}
 @media (max-width:800px){.admin-main{padding:24px}}
+
+/* 后台表单与按钮规范：主操作深蓝，次操作灰白，控件对齐。 */
+:root{--admin-primary:#173b64;--admin-primary-hover:#0f2e50;--admin-secondary:#f5f7fa;--admin-secondary-border:#d8dde5;--admin-focus:#2c6298}
+button{min-height:42px;border:1px solid var(--admin-primary);border-radius:6px;background:var(--admin-primary);color:#fff;line-height:1.2;transition:background .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease}
+button:hover:not(:disabled){border-color:var(--admin-primary-hover);background:var(--admin-primary-hover)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:0;box-shadow:0 0 0 3px #2c629826;border-color:var(--admin-focus)}
+button:disabled{cursor:not-allowed;opacity:.5}
+.secondary{border-color:var(--admin-secondary-border);background:var(--admin-secondary);color:#202630}
+.secondary:hover:not(:disabled){border-color:#c5cbd4;background:#e9edf2;color:#151a21}
+input,textarea,select{width:100%;border:1px solid #d8dde5;border-radius:6px;background:#fff;color:#202630;font:inherit}
+input,select{min-height:42px;padding:10px 13px}
+textarea{padding:12px 13px;line-height:1.65;resize:vertical}
+select{-webkit-appearance:none;appearance:none;padding-right:44px;background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235c6570' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 15px center;background-size:14px}
+.field-grid>label>input,.field-grid>label>select,.field-grid>label>textarea{margin-top:7px}
+.actions.full{grid-column:1/-1;justify-content:flex-end;margin-top:8px;padding-top:20px;border-top:1px solid #edf0f3}
+.actions.full button{min-width:116px}
+.login-field button{min-height:30px}
+aside nav button{min-height:42px;border-color:transparent;background:transparent}
+aside nav button:hover:not(:disabled),aside nav button.active{border-color:transparent;background:#ffffff12;color:#fff}

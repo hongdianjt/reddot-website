@@ -11,3 +11,25 @@
 .collection-solutions th:nth-child(6),.collection-solutions td:nth-child(6){width:108px;white-space:nowrap}
 .table-pagination{display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:18px 2px 0;color:#6f7580;font-size:13px}.table-pagination label{display:flex;align-items:center;gap:6px;white-space:nowrap}.table-pagination select{width:auto;min-width:66px;padding:7px 28px 7px 10px;border:1px solid #dfe2e7;border-radius:6px;background:#fff;color:#272b33}.table-pagination nav{display:flex;align-items:center;gap:6px}.table-pagination button{min-width:34px;height:34px;padding:0 10px;border:1px solid #dfe2e7;border-radius:6px;background:#fff;color:#424751;font-size:12px}.table-pagination button:hover:not(:disabled),.table-pagination .page-number.active{border-color:#e50012;color:#e50012;background:#fff7f8}.table-pagination button:disabled{opacity:.4;cursor:not-allowed}@media(max-width:760px){.table-pagination{justify-content:flex-start;flex-wrap:wrap;gap:10px}.table-pagination nav{order:3;width:100%;overflow:auto;padding-bottom:3px}}
 .content-solutions .upload-button,.content-news .upload-button{background:#e50012;color:#fff}.content-solutions .upload-button:hover,.content-news .upload-button:hover{background:#c90010}
+
+/* 内容管理操作层级统一 */
+.add,.upload-button,.content-solutions .upload-button,.content-news .upload-button{min-height:42px;border:1px solid var(--admin-primary);background:var(--admin-primary);color:#fff}
+.add:hover,.upload-button:hover,.content-solutions .upload-button:hover,.content-news .upload-button:hover{border-color:var(--admin-primary-hover);background:var(--admin-primary-hover);color:#fff}
+.text-button{min-height:34px;border:1px solid transparent;background:transparent;color:var(--admin-primary)}
+.text-button:hover:not(:disabled){border-color:#d7dde5;background:#f4f6f9;color:var(--admin-primary-hover)}
+.text-button.danger{color:#bd2631}
+.text-button.danger:hover:not(:disabled){border-color:#f0c9cd;background:#fff5f6;color:#a71924}
+.field-grid select{min-height:42px;padding:10px 44px 10px 13px;border-color:#d8dde5;border-radius:6px;background-color:#fff}
+.field-grid select,.table-pagination select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235c6570' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 15px center;background-size:14px}
+.image-input{align-items:flex-end}
+.image-input>input{min-width:0;margin-top:0}
+.image-input>.upload-button{flex:0 0 auto}
+.rich-tools button{min-height:32px;border-color:#d8dde5;background:#f6f7f9;color:#242a32}
+.rich-tools button:hover:not(:disabled){border-color:#c5cbd4;background:#e9edf2;color:#151a21}
+.icon-close{min-height:36px;border:0;background:transparent;color:#4e5661}
+.icon-close:hover:not(:disabled){border:0;background:#eef1f4;color:#202630}
+.modal-actions{grid-column:1/-1;margin-top:8px;padding-top:20px;border-top:1px solid #edf0f3}
+.modal-actions button{min-width:96px}
+.table-pagination button{border-color:#dfe2e7;background:#fff;color:#424751}
+.table-pagination button:hover:not(:disabled),.table-pagination .page-number.active{border-color:var(--admin-primary);background:#eef3f8;color:var(--admin-primary)}
+.table-pagination select{background-position:right 10px center}
