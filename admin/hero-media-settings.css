@@ -6,6 +6,7 @@
 .hero-media-file-control>input{min-width:0;background:#fff;color:#303640}
 .hero-media-upload-button,.hero-media-preview-button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 17px;border:1px solid #d9dde3;border-radius:6px;background:#fff;color:#252a31;font:inherit;font-weight:650;cursor:pointer;white-space:nowrap}
 .hero-media-upload-button{border-color:var(--admin-primary);background:var(--admin-primary);color:#fff}
+.field-grid .hero-media-upload-button{color:#fff}
 .hero-media-upload-button:hover{border-color:var(--admin-primary-hover);background:var(--admin-primary-hover)}
 .hero-media-upload-button.uploading{opacity:.65;cursor:wait}
 .hero-media-upload-button input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}

@@ -14,6 +14,7 @@
 
 /* 内容管理操作层级统一 */
 .add,.upload-button,.content-solutions .upload-button,.content-news .upload-button{min-height:42px;border:1px solid var(--admin-primary);background:var(--admin-primary);color:#fff}
+.field-grid .upload-button{color:#fff}
 .add:hover,.upload-button:hover,.content-solutions .upload-button:hover,.content-news .upload-button:hover{border-color:var(--admin-primary-hover);background:var(--admin-primary-hover);color:#fff}
 .text-button{min-height:34px;border:1px solid transparent;background:transparent;color:var(--admin-primary)}
 .text-button:hover:not(:disabled){border-color:#d7dde5;background:#f4f6f9;color:var(--admin-primary-hover)}
