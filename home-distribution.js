@@ -1,7 +1,7 @@
 (async()=>{
   const $=selector=>document.querySelector(selector);
   if(!$('#homeChinaMap'))return;
-  const near=element=>new Promise(resolve=>{if(!('IntersectionObserver'in window)){resolve();return}const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){observer.disconnect();resolve()}},{rootMargin:'600px 0px'});observer.observe(element)});
+  const near=element=>new Promise(resolve=>{if(!('IntersectionObserver'in window)){resolve();return}const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){observer.disconnect();resolve()}},{rootMargin:'1400px 0px'});observer.observe(element)});
   const loadScript=src=>new Promise((resolve,reject)=>{if(window.echarts){resolve();return}const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=reject;document.head.append(script)});
   const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const companyName=company=>company?.name||company?.[0]||'';
@@ -23,7 +23,7 @@
     if(selectedCity?.province)map.dispatchAction({type:'select',seriesIndex:0,name:selectedCity.province});
     document.querySelectorAll('[data-city-card]').forEach(card=>card.onclick=()=>{selected=card.dataset.cityCard;hovered='';render()});
   };
-  try{const geo=await fetch('assets/china.json').then(response=>response.json());echarts.registerMap('home-china',geo);map=echarts.init($('#homeChinaMap'))}catch(error){return}
+  try{const geo=await fetch('assets/china.json',{cache:'force-cache'}).then(response=>response.json());echarts.registerMap('home-china',geo);map=echarts.init($('#homeChinaMap'))}catch(error){return}
   map.on('mouseover',event=>{if(!event.data?.city)return;hovered=event.data.city.id;showPopover(event.data.city)});map.on('mouseout',event=>{if(!event.data?.city)return;hovered='';showPopover(getCity(selected))});map.on('click',event=>{if(!event.data?.city)return;selected=event.data.city.id;hovered='';render()});
   $('#homeCitySearch').oninput=event=>{query=event.target.value.trim();render()};$('#homeFilters').onclick=event=>{const next=event.target.dataset.filter;if(!next)return;filter=next;document.querySelectorAll('#homeFilters [data-filter]').forEach(button=>button.classList.toggle('active',button.dataset.filter===filter));render()};addEventListener('resize',()=>map.resize());render();
 })();
