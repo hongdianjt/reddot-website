@@ -6,16 +6,16 @@
   const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const companyName=company=>company?.name||company?.[0]||'';
   const companyType=company=>company?.type||company?.[1]||'';
-  let data, map, filter='all', query='', selected='', hovered='';
+  let data, map, filter='all', query='', selected='', hovered='', renderedCities=[];
   try{data=await fetch('/api/public/site',{cache:'no-store'}).then(response=>response.json());await near($('#homeChinaMap'));await loadScript('assets/echarts.min.js')}catch(error){return}
   const distribution=Array.isArray(data.distribution)?data.distribution:[];
   const available=()=>distribution.filter(city=>city.enabled!==false&&Number.isFinite(Number(city.longitude))&&Number.isFinite(Number(city.latitude)));
-  const cities=()=>available().filter(city=>!query||`${city.name}${(city.companies||[]).map(companyName).join('')}`.includes(query)).filter(city=>filter==='all'||(city.companies||[]).some(company=>companyType(company).includes(filter)));
-  const getCity=id=>distribution.find(city=>city.id===id);
+  const cities=()=>available().map(city=>{let companies=(city.companies||[]).filter(company=>filter==='all'||companyType(company)===filter);if(query&&!String(city.name||'').includes(query))companies=companies.filter(company=>`${companyName(company)}${companyType(company)}`.includes(query));return {...city,companies}}).filter(city=>city.companies.length);
+  const getCity=id=>renderedCities.find(city=>city.id===id);
   const showPopover=city=>{const popover=$('#homeMapPopover');if(!city){popover.hidden=true;return}popover.hidden=false;popover.innerHTML=`<h3>${hovered?'悬浮查看 · ':''}${esc(city.name)} · ${(city.companies||[]).length} 家公司</h3><ul>${(city.companies||[]).map(company=>`<li>${esc(companyName(company))}｜${esc(companyType(company))}</li>`).join('')}</ul>`};
   const points=items=>items.map(city=>({name:city.name,value:[Number(city.longitude),Number(city.latitude),(city.companies||[]).length],city}));
   const render=()=>{
-    const items=cities();if(!items.some(city=>city.id===selected))selected=items[0]?.id||'';
+    const items=cities();renderedCities=items;if(!items.some(city=>city.id===selected))selected=items[0]?.id||'';
     $('#homeCityList').innerHTML=items.map(city=>`<button class="home-city-card ${city.id===selected?'active':''}" data-city-card="${esc(city.id)}"><header><span>${esc(city.name)}${city.level==='province'?'（省级）':''}</span><b>${(city.companies||[]).length}</b></header><p>${(city.companies||[]).map(company=>esc(companyName(company))).join('<br>')}</p></button>`).join('')||'<p>未找到匹配城市</p>';
     $('#homeCityCount').textContent=`显示 ${items.length} / 共 ${available().length} 个城市`;
     const selectedCity=getCity(selected), currentCity=getCity(hovered||selected);showPopover(currentCity);
