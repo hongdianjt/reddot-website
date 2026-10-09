@@ -30,7 +30,7 @@
       <input type="hidden" name="heroMediaPoster" id="heroMediaPoster" value="">
     </div>
     <div class="hero-stream-state" id="heroStreamState" hidden></div>
-    <div class="media-rules"><b>上传规则</b><span>图片：JPG / PNG / WEBP / GIF，最大 8MB</span><span>视频：MP4 / WEBM / MOV，最大 100MB</span></div>
+    <div class="media-rules"><b>上传规则</b><span>图片：JPG / PNG / WEBP / GIF，最大 8MB；大图自动缩放并转为 WEBP</span><span>视频：MP4 / WEBM / MOV，最大 100MB</span></div>
     <small class="hero-upload-status" id="heroUploadStatus"></small>
   </fieldset>`;
 
@@ -121,21 +121,23 @@
     fields.file.disabled=true;
     fields.status.textContent=video?'正在上传并生成流式分片，请勿关闭页面…':'正在上传图片…';
     fields.status.className='hero-upload-status';
-    const body=new FormData();
-    body.append('file',file);
     try{
+      const optimized=video?null:await window.RedDotImageOptimizer.optimize(file);
+      const uploadFile=optimized?.file||file,body=new FormData();
+      body.append('file',uploadFile,uploadFile.name);
       const result=await api('/api/admin/upload-file',{method:'POST',body});
       fields.media.value=result.url||'';
       fields.hls.value=video?(result.hlsUrl||''):'';
       fields.mobile.value=result.url||'';
       fields.mobileHls.value=video?(result.hlsUrl||''):'';
-      fields.fileName.value=result.originalName||file.name;
+      fields.fileName.value=video?(result.originalName||file.name):file.name;
       fields.external.value='';
       fields.poster.value='';
       fields.preview.disabled=!result.url;
       fields.streamState.hidden=!video;
       fields.streamState.textContent=video?(result.segmented?'已生成流式分片，电脑端和移动端将自动使用。':'分片未生成，已自动改用原视频播放。') : '';
-      const saved=await save(form,fields.status,result.message||`${video?'视频':'图片'}上传并发布成功`);
+      const imageMessage=optimized?`图片上传并发布成功，${window.RedDotImageOptimizer.message(optimized)}`:'图片上传并发布成功';
+      const saved=await save(form,fields.status,result.message||(video?'视频上传并发布成功':imageMessage));
       if(saved&&video&&result.segmented===false)fields.status.className='hero-upload-status warning';
     }catch(error){
       fields.status.textContent=error.message||'上传失败';

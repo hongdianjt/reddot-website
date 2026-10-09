@@ -9,9 +9,11 @@
   const upload=async file=>{
     if(!file.type.startsWith('image/'))throw Error('请选择图片文件');
     if(file.size>8*1024*1024)throw Error('图片不能超过 8MB');
-    const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file)});
-    const response=await fetch('/api/admin/upload',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':token()},body:JSON.stringify({data})});
-    const body=await response.json().catch(()=>({}));if(!response.ok)throw Error(body.message||'图片上传失败');return `/assets/${body.url}`;
+    const optimized=await window.RedDotImageOptimizer.optimize(file);
+    const response=await fetch('/api/admin/upload',{method:'POST',headers:{'Content-Type':'application/json','x-admin-token':token()},body:JSON.stringify({data:optimized.dataUrl})});
+    const body=await response.json().catch(()=>({}));if(!response.ok)throw Error(body.message||'图片上传失败');
+    window.RedDotAdmin?.notify(`正文图片上传成功，${window.RedDotImageOptimizer.message(optimized)}`);
+    return `/assets/${body.url}`;
   };
   document.addEventListener('click',event=>{
     const button=event.target.closest('[data-insert-image]');if(!button)return;
